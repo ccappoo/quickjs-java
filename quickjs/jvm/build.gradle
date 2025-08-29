@@ -1,0 +1,31 @@
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+sourceSets {
+    main.java.srcDirs += '../common/java'
+    test.java.srcDirs += '../common/test'
+}
+
+dependencies {
+    api "androidx.annotation:annotation:1.9.1"
+
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "com.google.truth:truth:1.4.4"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId = 'quickjs-jvm'
+            version = project.version
+            
+            from components.java
+        }
+    }
+}

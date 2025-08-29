@@ -1,0 +1,46 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdk = 35
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId 'com.example.duktape.octane'
+        minSdk = 21
+        targetSdk = 35
+    }
+
+    signingConfigs {
+        samples {
+            storeFile file('samples.keystore')
+            storePassword 'javascript'
+            keyAlias 'javascript'
+            keyPassword 'javascript'
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix '.debug'
+            signingConfig signingConfigs.samples
+        }
+        release {
+            signingConfig signingConfigs.samples
+        }
+    }
+    namespace 'com.example.duktape.octane'
+}
+
+dependencies {
+    implementation project(':quickjs:android')
+    implementation "com.squareup.duktape:duktape-android:1.4.0"
+    implementation "com.squareup.okio:okio:3.16.0"
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.activity:activity:1.10.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+}

@@ -1,0 +1,89 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+android {
+    namespace 'app.cash.quickjs'
+    compileSdk = 35
+
+    defaultConfig {
+        minSdk 21
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        ndk {
+            abiFilters(*['x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'])
+        }
+
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=c++_static'
+                cFlags '-fstrict-aliasing', "-DCONFIG_VERSION=\\\"${quickJsVersion()}\\\""
+                cppFlags '-fstrict-aliasing', "-DCONFIG_VERSION=\\\"${quickJsVersion()}\\\""
+            }
+        }
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += '../common/java/'
+        androidTest.java.srcDirs += '../common/test/'
+    }
+
+    buildTypes {
+        release {
+            externalNativeBuild {
+                cmake {
+                    arguments '-DCMAKE_BUILD_TYPE=MinSizeRel'
+                    cFlags '-g0', '-Os', '-fomit-frame-pointer', '-DNDEBUG', '-fvisibility=hidden'
+                    cppFlags '-g0', '-Os', '-fomit-frame-pointer', '-DNDEBUG', '-fvisibility=hidden'
+                }
+            }
+        }
+        debug {
+            externalNativeBuild {
+                cmake {
+                    cFlags '-g', '-DDEBUG', '-DDUMP_LEAKS'
+                    cppFlags '-g', '-DDEBUG', '-DDUMP_LEAKS'
+                }
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+}
+
+dependencies {
+    api "androidx.annotation:annotation:1.9.1"
+
+    androidTestImplementation "androidx.test:runner:1.7.0"
+    androidTestImplementation "com.google.truth:truth:1.4.4"
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = project.group
+            artifactId = 'quickjs-android'
+            version = project.version
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+}
+
+
+
+def quickJsVersion() {
+    return new File(projectDir, "../common/native/quickjs/VERSION").text.trim()
+}
